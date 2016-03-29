@@ -1,1 +1,7 @@
 /* 575 boilerplate style.css */
+
+.us_canada {
+    fill: #FFF;
+    stroke: #CCC;
+    stroke-width: 2px;
+}

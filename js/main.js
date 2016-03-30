@@ -1,4 +1,4 @@
-/* 575 boilerplate main.js */
+
 window.onload = setMap();
 
 //set up choropleth map
@@ -6,8 +6,8 @@ function setMap(){
 
 
     //map frame dimensions
-    var width = 960,
-        height = 460;
+    var width = 800,
+        height = 600;
 
     //create new svg container for the map
     var map = d3.select("body")
@@ -16,14 +16,15 @@ function setMap(){
         .attr("width", width)
         .attr("height", height);
 
-    //create Albers equal area conic projection centered on France
+    //create Albers equal area conic projection centered on MN  and WI
     var projection = d3.geo.albers()
-        .center([0, 47])
-        .rotate([89, 0, 0])
+        .center([0, 46])
+        .rotate([93, 0, 0])
         .parallels([40, 55])
-        .scale(3000)
+        .scale(5000)
         .translate([width / 2, height / 2]);
 
+    //path generator
     var path = d3.geo.path()
         .projection(projection);
 
@@ -34,21 +35,19 @@ function setMap(){
         .defer(d3.json, "data/MN_WI_2.topojson")  //load choropleth spatial data
         .await(callback);
 
+    //callback function
     function callback(error, csvData, uscan, mnwi){
-        // console.log(error);
-        // console.log(csvData);
-        // console.log(mnwi);
-        // console.log(uscan);
 
-        var uscanada = topojson.feature(uscan, uscan.objects.US_CAN_2);
-        var minnwisc = topojson.feature(mnwi, mnwi.objects.MN_WI_2).features;
+        var uscanada = topojson.feature(uscan, uscan.objects.US_CAN_2); //convert background to geojson feature
+        var minnwisc = topojson.feature(mnwi, mnwi.objects.MN_WI_2).features; //convert MN/WI countiies to geojson feature
 
+        //add background to map
         var us_canada = map.append("path")
             .datum(uscanada)
             .attr("class", "us_canada")
             .attr("d", path);
 
-        //add France regions to map
+        //add Minnesota and Wisconsin counties to map
         var regions = map.selectAll(".counties")
             .data(minnwisc)
             .enter()
@@ -57,8 +56,5 @@ function setMap(){
                 return "regions " + d.properties.GEOID;
             })
             .attr("d", path);
-
-        // console.log(uscanada);
-        // console.log(minnwisc);
     };
 };

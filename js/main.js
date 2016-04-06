@@ -6,7 +6,7 @@
 //add click options
 
 
-    var attrArray = ["Id","Id2","Geography","Total Workers","Drove Alone","Two Person Carpool","Three Person Carpool","Four Person Carpool","Public Transportation","Walked","Bike","Taxi, Motorcycle, Other","Worked From Home","Work In State of Residence","InCounty","OutCounty","Work Outside State of Residence","Total Commuters","Left Between 12am and 4am","Left Between 5am","Left Between 6am","Left Between 7am","Left Between 8am","Left Between 9am and 12pm","Less Than 10 Minutes","10-19 Minutes","20-29 Minutes","30-44 Minutes","45-59 Minutes","60 Minutes or more","MeanTravel"];
+    var attrArray = ["Id","Id2","Id3","Geography","Total Workers","Drove Alone","Two Person Carpool","Three Person Carpool","Four Person Carpool","Public Transportation","Walked","Bike","Taxi, Motorcycle, Other","Worked From Home","Work In State of Residence","InCounty","OutCounty","Work Outside State of Residence","Total Commuters","Left Between 12am and 4am","Left Between 5am","Left Between 6am","Left Between 7am","Left Between 8am","Left Between 9am and 12pm","Less Than 10 Minutes","10-19 Minutes","20-29 Minutes","30-44 Minutes","45-59 Minutes","60 Minutes or more","MeanTravel"];
     var motArray = ["DroveAlone", "twoCarpool", "threeCarpool", "fourCarpool", "PublicTrans", "Walked", "Bike", "TaxiMotoOther"];
     var dropdownArray = ["Means of Transportation to Work", "Worked in State of Residence", "Time Left for Work", "Travel Time to Work"];
 
@@ -80,8 +80,6 @@
 
             var colorScale = makeColorScale(csvData);
 
-            console.log("Color Scale: " + colorScale);
-
             setEnumerationUnits(minnwisc, map, path, colorScale);
 
             createDropdown(csvData);
@@ -89,8 +87,6 @@
             setChart(csvData, colorScale);
 
             setPieChart(MotPieChartData);
-
-            // console.log(minnwisc[0].properties.pie);
 
         };
 
@@ -116,7 +112,6 @@
                 if (key == csvKey){
 
                     attrArray.forEach(function(attr){
-                        console.log("attr: " + attr);
                         var val = parseFloat(csvCounty[attr]);
                         props[attr] = val;
 
@@ -134,28 +129,40 @@
         var val = parseFloat(props[expressed]);
         //if attribute value exists, assign a color; otherwise assign gray
         if (val && val != NaN){
-            console.log("True");
             return colorScale(val);
         } else {
-            console.log("props:" + props);
-            console.log("False");
             return "#CCC";
         };
     };
 
     function setEnumerationUnits (minnwisc, map, path, colorScale){
+
         //add Minnesota and Wisconsin counties to map
-        var regions = map.selectAll(".counties")
+
+
+        var counties = map.selectAll(".counties")
+            
             .data(minnwisc)
             .enter()
             .append("path")
             .attr("class", function(d){
-                return "counties " + d.properties.GEOID;
+                var Id3 = "id" + d.properties.GEOID;
+                return "counties " + Id3;
             })
             .attr("d", path)
             .style("fill", function(d){
                 return choropleth(d.properties, colorScale);
-            });
+            })
+            .on("mouseover", function(d){
+                highlight(d.properties);
+            })
+             .on("mouseout", function(d){
+                dehighlight(d.properties);
+            })
+             .on("mousemove", moveLabel);
+
+        var desc = counties.append("desc")
+            .text('{"stroke": "#000", "stroke-width": "0.5px"}');
     };
 
     function makeColorScale(data){
@@ -174,7 +181,6 @@
         for (var i = 0; i < data.length; i++){
 
             var val = parseFloat(data[i][expressed]);
-            // console.log("val: " + val);
             domainArray.push(val);
         };
 
@@ -206,9 +212,22 @@
                 return b[expressed]-a[expressed]
             })
             .attr("class", function(d){
-                return "bars " + d.Id2;
+                var Id3 = "id" + d.Id2;
+                return "bars " + Id3;
             })
-            .attr("width", chartInnerWidth / csvData.length - 1);
+            .attr("width", chartInnerWidth / csvData.length - 1)
+            // .on("mouseover", function(d){
+            //     highlight(d.properties);
+            // })
+            // .on("mouseout", function(d){
+            //     dehighlight(d.properties);
+            // });
+            .on("mouseover", highlight)
+            .on("mouseout", dehighlight)
+            .on("mousemove", moveLabel);
+
+         var desc = bars.append("desc")
+            .text('{"stroke": "none", "stroke-width": "0px"}');
 
 
         var chartTitle = chart.append("text")
@@ -275,7 +294,7 @@
         var colorScale = makeColorScale(csvData);
 
         //recolor enumeration units
-        var regions = d3.selectAll(".counties")
+        var counties = d3.selectAll(".counties")
             .style("fill", function(d){
 
                 return choropleth(d.properties, colorScale)
@@ -292,7 +311,6 @@
     };
 
     function updateChart(bars, n, colorScale){
-        // console.log("expressed 3: " + expressed);
         bars.attr("x", function(d, i){
             if (d.Id2 != "All"){
                 return i * (chartInnerWidth / n) + leftPadding;
@@ -303,11 +321,9 @@
             return chartInnerHeight - yScale(parseFloat(d[expressed]));
         })
         .attr("y", function(d){
-            console.log("expressed: " + expressed);
             return yScale(parseFloat(d[expressed])) + topBottomPadding;
         })
         .style("fill", function(d){
-            console.log("d: " + d.motData);
             return choropleth(d, colorScale);
         });
 
@@ -318,7 +334,6 @@
     }
 
     function setPieChart(data){
-        console.log("Pie chart: " + data);
         var width = 300,
             height = 300,
             radius = Math.min(width, height) / 2;
@@ -326,11 +341,10 @@
         var color = d3.scale.ordinal()
             .range(colorRange);
 
-         // var color = d3.scale.category20c();
-
         var arc = d3.svg.arc()
             .outerRadius(radius - 10)
             .innerRadius(0);
+            // .innerRadius(radius - 70);
 
         var labelArc = d3.svg.arc()
             .outerRadius(radius - 40)
@@ -338,9 +352,7 @@
 
         var pie = d3.layout.pie()
             .sort(null)
-            .value(function(d) { 
-                console.log("d: " + d);
-                return d});
+            .value(function(d) { return d});
 
         var svg = d3.select("body").append("svg")
             .attr("width", width)
@@ -358,6 +370,114 @@
           g.append("path")
               .attr("d", arc)
               .style("fill", function(d,i) { return color(i); });
+
+    }
+
+    //function to highlight enumeration units and bars
+    function highlight(props){
+        // console.log("Highlight");
+        //change stroke
+        var selected = d3.selectAll(".id" +props.Id2)
+            .style({
+                "stroke": "black",
+                "stroke-width": "2"
+            });
+
+        setLabel(props);
+        updatePieChart(props);
+    };
+
+    function dehighlight(props){
+        var selected = d3.selectAll(".id" + props.Id2)
+            .style({
+                "stroke": function(){
+                    return getStyle(this, "stroke")
+                },
+                "stroke-width": function(){
+                    return getStyle(this, "stroke-width")
+                }
+            });
+
+        function getStyle(element, styleName){
+            var styleText = d3.select(element)
+                .select("desc")
+                .text();
+
+            var styleObject = JSON.parse(styleText);
+
+            return styleObject[styleName];
+        };
+
+        d3.select(".infolabel")
+            .remove();
+    };
+
+    function setLabel(props){
+    //label content
+        var labelAttribute = "<h1>" + props[expressed] +
+            "</h1><b>" + expressed + "</b>";
+
+        //create info label div
+        var infolabel = d3.select("body")
+            .append("div")
+            .attr({
+                "class": "infolabel",
+                "id": props.Id2 + "_label"
+            })
+            .html(labelAttribute);
+
+        var countyName = infolabel.append("div")
+            .attr("class", "labelname")
+            .html(props.name);
+    };
+
+    //function to move info label with mouse
+    function moveLabel(){
+        //get width of label
+        var labelWidth = d3.select(".infolabel")
+            .node()
+            .getBoundingClientRect()
+            .width;
+
+        //use coordinates of mousemove event to set label coordinates
+        var x1 = d3.event.clientX + 10,
+            y1 = d3.event.clientY - 75,
+            x2 = d3.event.clientX - labelWidth - 10,
+            y2 = d3.event.clientY + 25;
+
+        //horizontal label coordinate, testing for overflow
+        var x = d3.event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1; 
+        //vertical label coordinate, testing for overflow
+        var y = d3.event.clientY < 75 ? y2 : y1; 
+
+        d3.select(".infolabel")
+            .style({
+                "left": x + "px",
+                "top": y + "px"
+            });
+    };
+
+    function updatePieChart(props){
+        var data = props.motArray;
+
+        var svg = d3.selectAll(".arc");
+
+        console.log("svg: " + svg);
+
+        // var pie = d3.layout.pie()
+        //     .sort(null)
+        //     .value(function(d) { return d});
+
+
+        //   var g = svg.selectAll(".arc")
+        //       .data(pie(data))
+        //     .enter().append("g")
+        //       .attr("class", "arc");
+
+        //   g.append("path")
+        //       .attr("d", arc)
+        //       .style("fill", function(d,i) { return color(i); });
+
 
     }
 

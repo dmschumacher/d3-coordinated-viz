@@ -13,7 +13,7 @@
     var MotPieChartData = [4389043,381338,60482,40273,146790,170742,42937,49673,256841];
     var expressed = "Total Workers";
 
-    
+    // var pC;
 
     var chartWidth = window.innerWidth ,
         chartHeight = window.innerHeight * 0.5,
@@ -98,7 +98,9 @@
 
             var csvCounty = csvData[i];
             var csvKey = csvCounty.Id2;
-            var motData = [csvCounty.DroveAlone, csvCounty.twoCarpool, csvCounty.threeCarpool, csvCounty.fourCarpool, csvCounty.PublicTrans, csvCounty.Walked, csvCounty.Bike, csvCounty.TaxiMotoOther];
+            // console.log(csvCounty["Drove Alone"]);
+            var obj = new Object();
+            var motData = [csvCounty["Drove Alone"], csvCounty["Two Person Carpool"], csvCounty["Three Person Carpool"], csvCounty["Four Person Carpool"], csvCounty["Public Transportation"], csvCounty["Walked"], csvCounty["Bike"], csvCounty["Taxi, Motorcycle, Other"], csvCounty["Worked From Home"]];
             var sowData = [csvCounty.InState, csvCounty.OutState];
             // var depTimeData = [csvCounty.124, "5", "6", "7", "8", "912"]
             
@@ -334,6 +336,7 @@
     }
 
     function setPieChart(data){
+        // var pC ={};
         var width = 300,
             height = 300,
             radius = Math.min(width, height) / 2;
@@ -350,6 +353,8 @@
             .outerRadius(radius - 40)
             .innerRadius(radius - 40);
 
+
+
         var pie = d3.layout.pie()
             .sort(null)
             .value(function(d) { return d});
@@ -365,12 +370,23 @@
           var g = svg.selectAll(".arc")
               .data(pie(data))
             .enter().append("g")
-              .attr("class", "arc");
+              .attr("class", "arc")
+              .each(function(d) { this._current = d; });
 
           g.append("path")
               .attr("d", arc)
               .style("fill", function(d,i) { return color(i); });
 
+        // pC.update = function(data){
+        //     svg.selectAll("path").data(pie(data)).transition().duration(500)
+        //         .attrTween("d", arcTween);
+        // }
+        // function arcTween(a) {
+        //     var i = d3.interpolate(this._current, a);
+        //     this._current = i(0);
+        //     return function(t) { return arc(i(t));    };
+        // }   
+        // return pC;
     }
 
     //function to highlight enumeration units and bars
@@ -384,7 +400,7 @@
             });
 
         setLabel(props);
-        updatePieChart(props);
+        updatePieChart(props.motData);
     };
 
     function dehighlight(props){
@@ -457,12 +473,93 @@
             });
     };
 
-    function updatePieChart(props){
-        var data = props.motArray;
+    function updatePieChart(data){
 
-        var svg = d3.selectAll(".arc");
 
-        console.log("svg: " + svg);
+        var width = 300,
+            height = 300,
+            radius = Math.min(width, height) / 2;
+        var colorRange = ["#0000cc", "#990099", "#ff0000", "#ff6600", "#ffff00" , "#006600", "#663300", "#ff0066"];
+        var color = d3.scale.ordinal()
+            .range(colorRange);
+
+        var arc = d3.svg.arc()
+            .outerRadius(radius - 10)
+            .innerRadius(0);
+            // .innerRadius(radius - 70);
+
+        var labelArc = d3.svg.arc()
+            .outerRadius(radius - 40)
+            .innerRadius(radius - 40);
+
+
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) { return d});
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "pie")
+          .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+       
+
+          var g = svg.selectAll(".arc")
+              .data(pie(data))
+            .enter().append("g")
+              .attr("class", "arc")
+              .each(function(d) { this._current = d; });
+
+          g.append("path")
+              .attr("d", arc)
+              .style("fill", function(d,i) { return color(i); });
+
+        // var data = props.motData;
+        // console.log(props);
+        // var color = d3.scale.category20();
+        // console.log("data: " + data);
+
+        // var width = 300,
+        //     height = 300,
+        //     radius = Math.min(width, height) / 2;
+
+        // var arc = d3.svg.arc()
+        //     .outerRadius(radius - 10)
+        //     .innerRadius(0);
+        
+
+        // var pie = d3.layout.pie()
+        //     .sort(null)
+        //     .value(function(d) { return d});
+
+        // var g = d3.selectAll("arc");
+        // g.datum(data).selectAll("path").data(pie).transition().duration(1000);
+
+        // g.datum(data).selectAll("path")
+        //     .data(pie)
+        //   .enter().append("path")
+        //     .attr("class","pie")
+        //     .attr("fill", function(d,i){ return color(i); })
+        //     .attr("d", arc)
+        //     .each(function(d){ this._current = d; });
+
+        // g.datum(data).selectAll("path")
+        //     .data(pie).exit().remove();
+
+        // var svg = d3.selectAll("svg");
+
+        //  var pie = d3.layout.pie()
+        //     .sort(null)
+        //     .value(function(d) { return d});
+
+        // svg.selectAll("path").data(pie(data)).transition().duration(500);
+
+        // console.log("svg: " + svg);
+
+        //    var svg = d3.selectAll("svg");
 
         // var pie = d3.layout.pie()
         //     .sort(null)
@@ -471,14 +568,23 @@
 
         //   var g = svg.selectAll(".arc")
         //       .data(pie(data))
-        //     .enter().append("g")
-        //       .attr("class", "arc");
+        //     .enter();
 
         //   g.append("path")
         //       .attr("d", arc)
         //       .style("fill", function(d,i) { return color(i); });
 
 
+        function arcTween(a) {
+          var i = d3.interpolate(this._current, a);
+          this._current = i(0);
+          return function(t) {
+            return arc(i(t));
+          };
+        }
+
     }
+
+
 
 })();

@@ -5,9 +5,12 @@
 //add hover options
 //add click options
 
-
+    var motArray = ["Drove Alone", "Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home"]
+    var wisorArray = ["Work In State of Residence", "Worked Outside State of Residence"];
+    var tlfwArray = ["Left Between 12am and 4am","Left Between 5am and 6am","Left Between 6am and 7am","Left Between 7am and 8am","Left Between 8am and 9am","Left Between 9am and 12pm"];
+    var tttwArray = ["Less Than 10 Minutes","10-19 Minutes","20-29 Minutes","30-44 Minutes","45-59 Minutes","60 Minutes or more"];
     var attrArray = ["Id","Id2","Id3","Geography","Total Workers","Drove Alone","Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home","Work In State of Residence","InCounty","OutCounty","Work Outside State of Residence","Total Commuters","Left Between 12am and 4am","Left Between 5am","Left Between 6am","Left Between 7am","Left Between 8am","Left Between 9am and 12pm","Less Than 10 Minutes","10-19 Minutes","20-29 Minutes","30-44 Minutes","45-59 Minutes","60 Minutes or more","MeanTravel"];
-    var motArray = ["DroveAlone", "twoCarpool", "threeCarpool", "fourCarpool", "PublicTrans", "Walked", "Bike", "TaxiMotoOther"];
+
     var dropdownArray = ["Means of Transportation to Work", "Worked in State of Residence", "Time Left for Work", "Travel Time to Work"];
 
     var defaultColorRange = ["#0000cc", "#990099", "#ff0000", "#ff6600", "#ffff00" , "#006600", "#663300", "#ff0066"];
@@ -84,14 +87,14 @@
 
             setEnumerationUnits(minnwisc, map, path, colorScale);
 
-            createDropdown(csvData);
+            
 
             // setChart(csvData, colorScale);
 
             // setPieChart(MotPieChartData, defaultColorRange);
 
-            var data = reformatData(csvData);
-
+            var data = reformatData(csvData);//should maybe move this to create dropdown? then whenever its updated you get the right data.
+            createDropdown(data);
             graphs(data); //This is where I'll put bar, pie charts (http://bl.ocks.org/NPashaP/96447623ef4d342ee09b)
 
         };
@@ -116,15 +119,12 @@
                 obj["Public Transportation, Taxi, or Motorcycle"] = csvCounty["Public Transportation, Taxi, or Motorcycle"];
                 obj["Walked or Biked"] = csvCounty["Walked or Biked"];
                 obj["Worked From Home"] = csvCounty["Worked From Home"];
-                obj2["ID"] = csvCounty.Id3;
-                obj2["freq"] = obj; 
-                dataArray.push(obj2);
+                
 
             }else if(expressed =="Worked in State of Residence"){
                 obj["Work In State of Residence"] = csvCounty["Work In State of Residence"];
                 obj["Work Outside State of Residence"] = csvCounty["Work Outside State of Residence"];
-                obj2["freq"] = obj; 
-                dataArray.push(obj2);
+               
 
             }else if(expressed =="Time Left for Work"){
                 // Left Between 12am and 4am,Left Between 5am,Left Between 6am,Left Between 7am,Left Between 8am,Left Between 9am and 12pm
@@ -138,6 +138,11 @@
             }else{
 
             }
+
+            obj2["ID"] = csvCounty.Id3;//could format this to make highlight/dehighlighting easier
+            obj2["freq"] = obj; 
+            obj2["county"] = csvCounty.Geography;
+            dataArray.push(obj2);
         }
 
         return dataArray;
@@ -189,6 +194,17 @@
         };
     };
 
+    // function choropleth(num, colorScale){
+    //     //make sure attribute value is a number
+    //     var val = parseFloat(props[expressed]);
+    //     //if attribute value exists, assign a color; otherwise assign gray
+    //     if (val && val != NaN){
+    //         return colorScale(val);
+    //     } else {
+    //         return "#CCC";
+    //     };
+    // };
+
     function setEnumerationUnits (minnwisc, map, path, colorScale){
 
         //add Minnesota and Wisconsin counties to map
@@ -227,6 +243,7 @@
             "#2c7fb8",
             "#253494"  
         ];
+        console.log(data);
 
         var colorScale = d3.scale.quantile()
             .range(colorClasses);
@@ -235,6 +252,33 @@
         for (var i = 0; i < data.length; i++){
 
             var val = parseFloat(data[i][expressed]);
+            domainArray.push(val);
+        };
+
+        colorScale.domain(domainArray);
+
+        return colorScale;
+
+    };
+
+    function makeColorScale2(data){
+        var colorClasses = [
+            "#ffffcc",
+            "#a1dab4",
+            "#41b6c4",
+            "#2c7fb8",
+            "#253494"  
+        ];
+        console.log(data);
+
+        var colorScale = d3.scale.quantile()
+            .range(colorClasses);
+
+
+        var domainArray = [];
+        for (var i = 0; i < data.length; i++){
+
+            var val = parseFloat(data[i][1]);
             domainArray.push(val);
         };
 
@@ -311,7 +355,7 @@
 
     };
 
-    function createDropdown(csvData){
+    function createDropdown(data){
         //add select element
         var dropdown = d3.select("body")
             .append("select")
@@ -322,7 +366,7 @@
             }else{
                 expressed  = "TotCommuters";
             }
-            changeAttribute(expressed, csvData)
+            changeAttribute(data);
         });
 
         //add initial option
@@ -340,12 +384,12 @@
             .text(function(d){ return d });
     };
 
-    function changeAttribute(attribute, csvData){
+    function changeAttribute(data){
         //change the expressed attribute
-        expressed = attribute;
+      
 
         //recreate the color scale
-        var colorScale = makeColorScale(csvData);
+        var colorScale = makeColorScale(data);
 
         //recolor enumeration units
         var counties = d3.selectAll(".counties")
@@ -354,12 +398,15 @@
                 return choropleth(d.properties, colorScale)
             });
 
-        var bars = d3.selectAll(".bars")
-        //re-sort bars
-        .sort(function(a, b){
-            return b[expressed] - a[expressed];
-        });
-        updateChart(bars, csvData.length, colorScale);
+        // var bars = d3.selectAll(".bars")
+        // //re-sort bars
+        // .sort(function(a, b){
+        //     return b[expressed] - a[expressed];
+        // });
+        // updateChart(bars, csvData.length, colorScale);
+
+        graphs(data);
+
          //re-sort, resize, and recolor bars
         
     };
@@ -390,19 +437,33 @@
     //function to highlight enumeration units and bars
     function highlight(props){
         // console.log("Highlight");
+        var selectThis;
+        if(props.Id2){
+            selectThis = ".id" + props.Id2;
+        }else{
+            selectThis = "." + props[0];
+        }
         //change stroke
-        var selected = d3.selectAll(".id" +props.Id2)
+        // var selected = d3.selectAll(".id" +props.Id2)
+        var selected = d3.selectAll(selectThis)
             .style({
                 "stroke": "black",
                 "stroke-width": "2"
             });
 
         setLabel(props);
-        updatePieChart(props.motData);
+        // updatePieChart(props.motData);
     };
 
     function dehighlight(props){
-        var selected = d3.selectAll(".id" + props.Id2)
+
+        var selectThis;
+        if(props.Id2){
+            selectThis = ".id" + props.Id2;
+        }else{
+            selectThis = "." + props[0];
+        }
+        var selected = d3.selectAll(selectThis)
             .style({
                 "stroke": function(){
                     return getStyle(this, "stroke")
@@ -427,6 +488,7 @@
     };
 
     function setLabel(props){
+        console.log(props);
     //label content
         var labelAttribute = "<h1>" + props[expressed] +
             "</h1><b>" + expressed + "</b>";
@@ -616,7 +678,11 @@
             hGDim.ih = hGDim.h - hGDim.t * 2.5,
             translate = "translate(" + hGDim.l + "," + hGDim.t +")";
 
-            // var colorScale = makeColorScale(fD);
+            console.log(fD);
+
+            var colorScale = makeColorScale2(fD);
+
+            // console.log(colorScale);
                 
             //create svg for histogram.
             var hGsvg = d3.select("body").append("svg")
@@ -671,12 +737,15 @@
                     return y(d[1]) + hGDim.t; })
                 .attr("width", hGDim.iw / fD.length - 1)
                 .attr("height", function(d) { return hGDim.ih - y(d[1]); })
-                .attr('fill',barColor)
-                //  .style("fill", function(d){
-                //     return choropleth(d, colorScale);
-                // })
+                // .attr('fill',barColor)
+                 .style("fill", function(d){
+                    return colorScale(d[1]);
+                 })
                 .on("mouseover",mouseover)// mouseover is defined below.
                 .on("mouseout",mouseout);// mouseout is defined below.
+
+            var desc = bars.append("desc")
+                .text('{"stroke": "none", "stroke-width": "0px"}');
 
              var yAxis = d3.svg.axis()
                 .scale(y)
@@ -694,6 +763,8 @@
             //     .attr("text-anchor", "middle");
             
             function mouseover(d){  // utility function to be called on mouseover.
+
+                highlight(d);
                 // filter for selected state.
                 var st = fData.filter(function(s){ return s.ID == d[0];})[0],
                     nD = d3.keys(st.freq).map(function(s){ return {type:s, freq:st.freq[s]};});
@@ -705,6 +776,8 @@
             
             function mouseout(d){    // utility function to be called on mouseout.
                 // reset the pie-chart and legend.    
+                dehighlight(d);
+
                 pC.update(tF);
                 leg.update(tF);
             }
@@ -748,7 +821,9 @@
                 bars.select("rect").transition().duration(500)
                     .attr("y", function(d) {return y(d[1]) + hGDim.t; })
                     .attr("height", function(d) { return hGDim.ih - y(d[1]); })
-                    .attr("fill", color);
+                    .style("fill", function(d){
+                        return colorScale(d[1]);
+                     });
           
             }        
             return hG;
@@ -789,7 +864,7 @@
                 // call the update function of histogram with new data.
                 hG.update(fData.map(function(v){ 
                     // var val = 
-                    return [v.ID,parseFloat(v.freq[d.data.type])];}),segColor(d.data.type)); //update segColor to something else
+                    return [v.ID,parseFloat(v.freq[d.data.type]),v.county];}),segColor(d.data.type)); //update segColor to something else
             }
             //Utility function to be called on mouseout a pie slice.
             function mouseout(d){
@@ -858,7 +933,7 @@
         });    
         
         // calculate total frequency by state for all segment.
-        var sF = fData.map(function(d){return [d.ID,d.total];});
+        var sF = fData.map(function(d){return [d.ID,d.total,d.county]});
 
         var pC = pieChart(tF), // create the pie-chart.
             leg= legend(tF),// create the legend.

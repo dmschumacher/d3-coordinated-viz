@@ -109,8 +109,12 @@ option {
 }
 
 
-path {  stroke: #fff; }
-path:hover {  opacity:0.9; }
+path {  
+    stroke: #fff; 
+    opacity: 0.9;
+}
+/*path:hover {  opacity:0.8; }
+path:active {opacity : 1;}*/
 /*rect:hover {  fill:blue; }*/
 .axis {  font: 10px sans-serif; }
 .legend tr{    border-bottom:1px solid grey; }

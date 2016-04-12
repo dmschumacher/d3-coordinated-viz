@@ -4,6 +4,8 @@
 //revamp yScale() to change for each category
 //add hover options
 //add click options
+    // var clicked = false;
+    var otherClicked = false;
 
     var motArray = ["Drove Alone", "Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home"]
     var wisorArray = ["Work In State of Residence", "Worked Outside State of Residence"];
@@ -139,6 +141,9 @@
                 obj["Left Between 9am and 12pm"] = csvCounty["Left Between 9am and 12pm"];
 
             }else{
+                tttwArray.forEach(function(d){
+                    obj[d] = csvCounty[d];
+                })
 
             }
 
@@ -250,6 +255,7 @@
                 return choropleth(d.properties, colorScale);
             })
             .on("mouseover", function(d){
+                pC.update(d.properties);
                 highlight(d.properties);
             })
              .on("mouseout", function(d){
@@ -285,18 +291,18 @@
     function getColorClasses(color){
         // console.log(color);
         var colorClasses;
-        if (color == "#FF0000"){
+        if (color == "#de2d26"){
             colorClasses = colorbrewer.Reds[5];
-        }else if(color == "Blue"){
+        }else if(color == "#3182bd"){
             colorClasses = colorbrewer.Blues[5];
-        }else if(color == "Orange"){
+        }else if(color == "#e6550d"){
             colorClasses = colorbrewer.Oranges[5];
-        }else if(color == "Green"){
+        }else if(color == "#31a354"){
             colorClasses = colorbrewer.Greens[5];
-        }else if(color == "Purple"){
+        }else if(color == "#756bb1"){
             colorClasses = colorbrewer.Purples[5];
         }else{
-            colorClasses = colorbrewer.YlGnBu[5];
+            colorClasses = colorbrewer.PuBuGn[5];
         }
         return colorClasses;
     }
@@ -311,7 +317,7 @@
         // ];
 
 
-        console.log(color);
+        // console.log(color);
 
         var colorClasses = getColorClasses(color);
 
@@ -362,12 +368,16 @@
             .text(function(d){ return d });
     };
 
+
+    //When the menu option is changed, graphs should completely reset, data should be recalculated, the selected array should be changed
     function changeAttribute(data){
         //change the expressed attribute
       
 
+      //
+
         //recreate the color scale
-        var colorScale = makeColorScale(data);
+        var colorScale = makeColorScale2(data);
 
         //recolor enumeration units
         var counties = d3.selectAll(".counties")
@@ -376,16 +386,11 @@
                 return choropleth(d.properties, colorScale)
             });
 
-        // var bars = d3.selectAll(".bars")
-        // //re-sort bars
-        // .sort(function(a, b){
-        //     return b[expressed] - a[expressed];
-        // });
-        // updateChart(bars, csvData.length, colorScale);
+     
 
         graphs(data);
 
-         //re-sort, resize, and recolor bars
+
         
     };
 
@@ -445,22 +450,42 @@
 
     function setLabel(props){
         console.log(props);
+
+        var title;
+        var val;
+        var id;
+        var name;
+
+        if(props[0]){
+            console.log("here");
+
+            title = props[3];
+            val= props[1];
+            id = props[0];
+            console.log(title +"," + val + "," + id);
+        }else{
+            title = expressed;
+            val = props[expressed];
+            id = props.Id3;
+            name = props.name;
+            console.log(title +"," + val + "," + id + "," + name);
+        }
     //label content
-        var labelAttribute = "<h1>" + props[expressed] +
-            "</h1><b>" + expressed + "</b>";
+        var labelAttribute = "<h1>" + val +
+            "</h1><b>" + title + "</b>";
 
         //create info label div
         var infolabel = d3.select("body")
             .append("div")
             .attr({
                 "class": "infolabel",
-                "id": props.Id2 + "_label"
+                "id": id + "_label"
             })
             .html(labelAttribute);
 
-        var countyName = infolabel.append("div")
-            .attr("class", "labelname")
-            .html(props.name);
+        // var countyName = infolabel.append("div")
+        //     .attr("class", "labelname")
+        //     .html(id);
     };
 
     //function to move info label with mouse
@@ -498,7 +523,7 @@
         function resetColorsAndArrayThing(){//need to have a color object for each category and an array of the values to pass in to the pie chart data?
 
         }
-        function segColor(c){ return {"Drove Alone":"#FF0000", "Carpooled":"#000099","Public Transportation, Taxi, or Motorcycle":"#660066","Walked or Biked":"#663300","Worked From Home":"#ff6600"}[c]; }
+        function segColor(c){ return {"Drove Alone":"#de2d26", "Carpooled":"#3182bd","Public Transportation, Taxi, or Motorcycle":"#756bb1","Walked or Biked":"#31a354","Worked From Home":"#e6550d"}[c]; }
 
         // {"Drove Alone":"#FF0000", "Two Person Carpool":"#000099","Three Person Carpool":"#009900","Four Person Carpool":"#FFFF00","Public Transportation":"#660066","Walked":"#663300","Taxi, Motorcycle, Other":"#ff0066","Worked From Home":"#999966"}
         
@@ -526,7 +551,7 @@
             
         });
 
-        console.log(fData);
+        
 
 
         
@@ -539,7 +564,7 @@
             hGDim.ih = hGDim.h - hGDim.t * 2.5,
             translate = "translate(" + hGDim.l + "," + hGDim.t +")";
 
-            console.log(fD);
+            // console.log(fD);
 
             var colorScale = makeColorScale2(fD);
                 
@@ -593,7 +618,8 @@
                     return colorScale(d[1]);
                  })
                 .on("mouseover",mouseover)// mouseover is defined below.
-                .on("mouseout",mouseout);// mouseout is defined below.
+                .on("mouseout",mouseout)
+                .on("mousemove", moveLabel);// mouseout is defined below.
 
             var desc = bars.append("desc")
                 .text('{"stroke": "none", "stroke-width": "0px"}');
@@ -609,7 +635,7 @@
                 
             
             function mouseover(d){  // utility function to be called on mouseover.
-
+                console.log(d);
                 highlight(d);
                 // filter for selected state.
                 var st = fData.filter(function(s){ return s.ID == d[0];})[0],
@@ -630,13 +656,14 @@
             
             // create function to update the bars. This will be used by pie-chart.
             hG.update = function(nD, color){
-                console.log(nD[1]);
+                // console.log(nD[0][3]);
+                // console.log(color);
 
                  var colorScale = makeColorScale2(nD, color);
-                 var counties = d3.selectAll(".counties")
+                 var counties = d3.selectAll(".counties").transition().duration(500)
                     .style("fill", function(d){
-                        
-                        return colorScale(d.properties["Drove Alone"]);
+                        // console.log(nD[0][3]);
+                        return colorScale(d.properties[nD[0][3]]);
                     });
 
                 var max = d3.max(nD, function(d) { return d[1]; });
@@ -645,7 +672,7 @@
                     y = d3.scale.sqrt().range([hGDim.ih, 0])
                     .domain([0, max]);
                 }else{
-                    y = d3.scale.linear().range([hGDim.ih, 0])
+                    y = d3.scale.sqrt().range([hGDim.ih, 0])
                     .domain([0, max]);
                 }
 
@@ -695,28 +722,82 @@
             // Draw the pie slices.
             piesvg.selectAll("path").data(pie(pD)).enter().append("path").attr("d", arc)
                 .each(function(d) { this._current = d; })
+
                 .style("fill", function(d) { return segColor(d.data.type); })//update segColor to something else
-                .on("mouseover",mouseover).on("mouseout",mouseout);
+                .attr("class", function(d) { return d.data.type; })
+                .attr("clicked", false)
+                .on("mouseover",mouseover).on("mouseout",mouseout).on("click",click);
 
             // create function to update pie-chart. This will be used by histogram.
             pC.update = function(nD){
                 piesvg.selectAll("path").data(pie(nD)).transition().duration(500)
                     .attrTween("d", arcTween);
-            }        
+            } 
+            function click(d){
+                
+                var select = d.data.type;
+                select = select.split(' ').join(".");
+                var isClicked = d3.select(this).attr("clicked");
+                console.log("other" + otherClicked);
+                
+                if(otherClicked && isClicked == "true"){
+                    console.log("here");
+                    piesvg.selectAll("." + select)
+                        
+                        .style("opacity", "0.8")
+                        .attr("clicked", false);
+                    otherClicked = false;
+                    // d3.select(this).attr("clicked") = false;
+                }else if(!otherClicked && isClicked == "false"){//None of the others have been clicked and this one hasn't either, slected it., 
+                    console.log("here2");
+                    piesvg.selectAll("." + select)
+                       
+                        .style("opacity", "1")
+                        .attr("clicked", true);
+                    otherClicked = true;
+                    // d3.select(this).attr("clicked") = true;
+                    
+                }
+            }       
             // Utility function to be called on mouseover a pie slice.
             function mouseover(d){
+                console.log(d);
                 // call the update function of histogram with new data.
+                if(!otherClicked){
+                    var select = d.data.type;
+                    select = select.split(' ').join(".");
+                    piesvg.selectAll("." + select)
+                        
+                        .style("opacity", "0.6");
 
-                hG.update(fData.map(function(v){ 
+                    hG.update(fData.map(function(v){ 
                     // var val = 
-                    return [v.ID,parseFloat(v.freq[d.data.type]),v.county];}),segColor(d.data.type)); //update segColor to something else
+                    return [v.ID,parseFloat(v.freq[d.data.type]),v.county,d.data.type];}),segColor(d.data.type)); //update segColor to something else
+                }
+                
             }
             //Utility function to be called on mouseout a pie slice.
             function mouseout(d){
                 // call the update function of histogram with all data.
-                hG.update(fData.map(function(v){
-                    return [v.ID,v.total];}), barColor); //update barColor to chloropleth
+                if(!otherClicked){
+
+                     var select = d.data.type;
+                        select = select.split(' ').join(".");
+                        piesvg.selectAll("." + select)
+                            
+                            .style("opacity", "0.8");
+
+                     hG.update(fData.map(function(v){
+                    return [v.ID,v.total,v.county,"Total Workers"];}), barColor); //update barColor to chloropleth
+                }
+               
             }
+             d3.selection.prototype.moveToFront = function() {  
+              return this.each(function(){
+                this.parentNode.appendChild(this);
+              });
+            };
+            
             // Animating the pie-slice requiring a custom function which specifies
             // how the intermediate paths should be drawn.
             function arcTween(a) {
@@ -777,8 +858,9 @@
             return {type:d, freq: d3.sum(fData.map(function(t){ return t.freq[d];}))}; 
         });    
         
+        // console.log(fData);
         // calculate total frequency by state for all segment.
-        var sF = fData.map(function(d){return [d.ID,d.total,d.county]});
+        var sF = fData.map(function(d){return [d.ID,d.total,d.county,"Total Workers"]});
 
         var pC = pieChart(tF), // create the pie-chart.
             leg= legend(tF),// create the legend.

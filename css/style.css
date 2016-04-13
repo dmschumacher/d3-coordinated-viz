@@ -1,18 +1,25 @@
 /* 575 boilerplate style.css */
-
+.body{
+    min-width: 500;
+    /*width:900;*/
+    
+   
+}
 .map {
     border: medium solid #999;
     margin: 5px 5px 5px 5px;
 }
 .title {
-    position: absolute;
-    top: 10px;
-    right: 375px;
+    position: relative;
+    top: -255px;
+    right: -20px;
     font-family:sans-serif;
     color: white;
     background-color: black;
     font-size: 24px;
     font-weight: bold;
+    padding:5px;
+
 }
 .content {
     height: 20px;
@@ -23,8 +30,9 @@
 .etc{
     margin: 5px 5px 5px 5px;
     position: absolute;
-    bottom: 10px;
-    right: 50%;
+    bottom: -10px;
+    right: 350px;
+
     font-family:sans-serif;
     color: black;
 
@@ -32,12 +40,6 @@
     font-weight: bold;
 }
 
-/*.chart {
-    background-color: rgba(128,128,128,.2);
-    border: medium solid #999;
-    float: right;
-    margin: 10px 20px 0 0;
-}*/
 
 .us_canada {
     fill:#d9d9d9;
@@ -51,7 +53,10 @@
     stroke-linecap: round;
 }
 
-.chart {
+.barChart {
+    position:absolute;
+    /*top:-150px;*/
+    right: 125px;
     float: right;
     margin: 0 0 0 0;
 }
@@ -73,14 +78,6 @@
     shape-rendering: crispEdges;
 }
 
-/*.axis path,
-.axis line {
-    fill: none;
-    stroke: #999;
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-}
-*/
 .axis text {
     font-family: sans-serif;
     font-size: 1em;
@@ -88,9 +85,9 @@
 }
 
 .dropdown {
-    position: absolute;
-    top: 70px;
-    right: 350px;
+    position: relative;
+    top: -255px;
+    right: -150px;
     z-index: 10;
     font-family: sans-serif;
     font-size: 1em;
@@ -104,6 +101,11 @@ option {
     font-weight: normal;
 }
 
+.pie{
+    position: relative;
+    top: 0px;
+    right: 500px;
+}
 
 
 .arc path {
@@ -137,9 +139,7 @@ path {
     stroke: #fff; 
     opacity: 0.9;
 }
-/*path:hover {  opacity:0.8; }
-path:active {opacity : 1;}*/
-/*rect:hover {  fill:blue; }*/
+
 .axis {  font: 10px sans-serif; }
 .legend tr{    border-bottom:1px solid grey; }
 .legend tr:first-child{    border-top:1px solid grey; }
@@ -153,8 +153,11 @@ path:active {opacity : 1;}*/
 
 .x.axis path {  display: none; }
 .legend{
-    top: 15px;
-    margin-bottom:15px;
+    position: relative;
+    top: -225px;
+    right: -750px;
+    /*margin-top: px;*/
+    margin-bottom:5px;
     margin-left: 10px;
     display:inline-block;
     border-collapse: collapse;

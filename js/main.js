@@ -1,3 +1,11 @@
+/////////////////////////////////////////////////////////
+//Author: Dan Schumacher
+//MN-WI CommuterVis
+//webpage for comparing various commuting statistics
+//in Wisconsin and Minnesota by county
+//
+//
+
 (function(){
 
     //variety of global variables

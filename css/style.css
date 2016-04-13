@@ -4,6 +4,33 @@
     border: medium solid #999;
     margin: 5px 5px 5px 5px;
 }
+.title {
+    position: absolute;
+    top: 10px;
+    right: 375px;
+    font-family:sans-serif;
+    color: white;
+    background-color: black;
+    font-size: 24px;
+    font-weight: bold;
+}
+.content {
+    height: 20px;
+    background-color: black;
+    width: 100%;
+    z-index: 10;
+}
+.etc{
+    margin: 5px 5px 5px 5px;
+    position: absolute;
+    bottom: 10px;
+    right: 50%;
+    font-family:sans-serif;
+    color: black;
+
+    font-size: 10px;
+    font-weight: bold;
+}
 
 /*.chart {
     background-color: rgba(128,128,128,.2);
@@ -13,9 +40,9 @@
 }*/
 
 .us_canada {
-    fill: #FFF;
-    stroke: #CCC;
-    stroke-width: 2px;
+    fill:#d9d9d9;
+    stroke: #000;
+    stroke-width: .5px;
 }
 
 .counties {
@@ -26,7 +53,7 @@
 
 .chart {
     float: right;
-    margin: 10px 20px 0 0;
+    margin: 0 0 0 0;
 }
 
 .chartTitle {
@@ -62,8 +89,8 @@
 
 .dropdown {
     position: absolute;
-    top: 30px;
-    right: 40px;
+    top: 70px;
+    right: 350px;
     z-index: 10;
     font-family: sans-serif;
     font-size: 1em;
@@ -77,12 +104,7 @@ option {
     font-weight: normal;
 }
 
-/*.pie {
-    position: absolute;
-    right: 30%;
-    top: 5px;
 
-}*/
 
 .arc path {
   stroke: #fff;
@@ -99,15 +121,17 @@ option {
     border: solid thin #fff;
     padding: 5px 10px;
     top: -75px;
+    font-size: 14px;
 }
 
 .infolabel h1 {
-    margin: 0 20px 0 0;
+    margin: 0 20px 10px 0;
     padding: 0;
     display: inline-block;
     line-height: 1em;
+    text-decoration: underline;
+    font-size: 18px;
 }
-
 
 path {  
     stroke: #fff; 
@@ -129,7 +153,9 @@ path:active {opacity : 1;}*/
 
 .x.axis path {  display: none; }
 .legend{
-    margin-bottom:50px;
+    top: 15px;
+    margin-bottom:15px;
+    margin-left: 10px;
     display:inline-block;
     border-collapse: collapse;
     border-spacing: 0px;

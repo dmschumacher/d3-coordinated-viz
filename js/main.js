@@ -10,14 +10,14 @@
     var motArray = ["Drove Alone", "Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home"]
     var wisorArray = ["Work In State of Residence", "Work Outside State of Residence"];
     var tlfwArray = ["Left Between 12am and 4am","Left Between 5am and 6am","Left Between 6am and 7am","Left Between 7am and 8am","Left Between 8am and 9am","Left Between 9am and 12pm"];
-    var tttwArray = ["Less Than 10 Minutes","10-19 Minutes","20-29 Minutes","30-44 Minutes","45-59 Minutes","60 Minutes or more"];
-    var attrArray = ["Id","Id2","Id3","Geography","Total Workers","Drove Alone","Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home","Work In State of Residence","InCounty","OutCounty","Work Outside State of Residence","Total Commuters","Left Between 12am and 4am","Left Between 5am","Left Between 6am","Left Between 7am","Left Between 8am","Left Between 9am and 12pm","Less Than 10 Minutes","10-19 Minutes","20-29 Minutes","30-44 Minutes","45-59 Minutes","60 Minutes or more","MeanTravel"];
+    var tttwArray = ["Less Than 10 Minutes","Between 10 and 19 Minutes","Between 20 and 29 Minutes","Between 30 and 44 Minutes","Between 45 and 59 Minutes","More than 60 Minutes"];
+    var attrArray = ["Id","Id2","Id3","Geography","Total Workers","Drove Alone","Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home","Work In State of Residence","InCounty","OutCounty","Work Outside State of Residence","Total Commuters","Left Between 12am and 4am","Left Between 5am and 6am","Left Between 6am and 7am","Left Between 7am and 8am","Left Between 8am and 9am","Left Between 9am and 12pm","Less Than 10 Minutes","Between 10 and 19 Minutes","Between 20 and 29 Minutes","Between 30 and 44 Minutes","Between 45 and 59 Minutes","More than 60 Minutes"];
 
 
     motColorObj = {"Drove Alone":"#de2d26", "Carpooled":"#3182bd","Public Transportation, Taxi, or Motorcycle":"#756bb1","Walked or Biked":"#31a354","Worked From Home":"#e6550d"};
     wisorColorObj = {"Work In State of Residence":"#3182bd","Work Outside State of Residence":"#756bb1"};
     tlfwColorObj = {"Left Between 12am and 4am":"#de2d26", "Left Between 5am and 6am":"#3182bd","Left Between 6am and 7am":"#756bb1","Left Between 7am and 8am":"#31a354","Left Between 8am and 9am":"#e6550d", "Left Between 9am and 12pm":"#636363"};
-    tttwColorObj = {"Less Than 10 Minutes":"#de2d26", "10-19 Minutes":"#3182bd","20-29 Minutes":"#756bb1","30-44 Minutes":"#31a354","45-59 Minutes":"#e6550d", "60 Minutes or more":"#636363"};
+    tttwColorObj = {"Less Than 10 Minutes":"#de2d26", "Between 10 and 19 Minutes":"#3182bd","Between 20 and 29 Minutes":"#756bb1","Between 30 and 44 Minutes":"#31a354","Between 45 and 59 Minutes":"#e6550d", "More than 60 Minutes":"#636363"};
 
 
 
@@ -31,7 +31,6 @@
 
     var defaultColorRange = ["#de2d26","#3182bd","#e6550d","#31a354","#756bb1","#636363"];
 
-    var MotPieChartData = [4389043,381338,60482,40273,146790,170742,42937,49673,256841];
     var expressed = "Total Workers";
 
     // var pC;
@@ -104,102 +103,24 @@
 
             setEnumerationUnits(minnwisc, map, path, colorScale);
 
-            
+            // var header = document.getElementById("content");
 
-            // setChart(csvData, colorScale);
+            // header.innerHTML = "MN-WI CommuterViz"
 
-            // setPieChart(MotPieChartData, defaultColorRange);
+            d3.select("body")
+                .append("text")
+                .attr("class", "title")
+                .text("MN-WI CommuterViz");
 
-            // main();
-
-            // d3.selectAll("Title")
-            //     .append()
-            //     .
-
-            // var data = reformatData(csvData);//should maybe move this to create dropdown? then whenever its updated you get the right data.
+         
             createDropdown(minnwisc);
-            // graphs(data); //This is where I'll put bar, pie charts (http://bl.ocks.org/NPashaP/96447623ef4d342ee09b)
+            //http://bl.ocks.org/NPashaP/96447623ef4d342ee09b)
 
         };
 
     };
 
-    function reformatData(csvData){
-        var dataMaster =  new Object();
-        var dataArray=[];
-        
-        for (var i = 0; i < csvData.length; i++){
-            var obj = new Object();
-            var obj2 = new Object();
-            var csvCounty = csvData[i];
-
-            var motFreq = new Object();
-            var wisorFreq = new Object();
-            var tlfwFreq = new Object();
-            var tttwFreq = new Object();
-
-
-            motArray.forEach(function(d){
-                motFreq[d] = parseFloat(csvCounty[d]);
-            });
-
-            wisorArray.forEach(function(d){
-                wisorFreq[d] =  parseFloat(csvCounty[d]);
-            });
-
-            tlfwArray.forEach(function(d){
-                tlfwFreq[d] =  parseFloat(csvCounty[d]);
-            });
-
-            tttwArray.forEach(function(d){
-                tttwFreq[d] =  parseFloat(csvCounty[d]);
-            });
-
-            // obj.id = csvCounty.Id3;
-            // console.log("expressed: " + expressed);
-            // if(expressed == "Means of Transportation to Work"){
-            if(expressed == "Total Workers" || expressed == "Means of Transportation to Work"){
-                // console.log("here");
-                // ["Drove Alone", "Two Person Carpool","Three Person Carpool","Four Person Carpool","Public Transportation","Walked","Taxi, Motorcycle, Other","Worked From Home"]
-                obj["Drove Alone"] = csvCounty["Drove Alone"];
-                obj["Carpooled"] = csvCounty["Carpooled"];
-                obj["Public Transportation, Taxi, or Motorcycle"] = csvCounty["Public Transportation, Taxi, or Motorcycle"];
-                obj["Walked or Biked"] = csvCounty["Walked or Biked"];
-                obj["Worked From Home"] = csvCounty["Worked From Home"];
-                
-
-            }else if(expressed =="Worked in State of Residence"){
-                obj["Work In State of Residence"] = csvCounty["Work In State of Residence"];
-                obj["Work Outside State of Residence"] = csvCounty["Work Outside State of Residence"];
-               
-
-            }else if(expressed =="Time Left for Work"){
-                // Left Between 12am and 4am,Left Between 5am,Left Between 6am,Left Between 7am,Left Between 8am,Left Between 9am and 12pm
-                obj["Left Between 12am and 4am"] = csvCounty["Left Between 12am and 4am"];
-                obj["Left Between 5am"] = csvCounty["Left Between 5am"];
-                obj["Left Between 6am"] = csvCounty["Left Between 6am"];
-                obj["Left Between 7am"] = csvCounty["Left Between 7am"];
-                obj["Left Between 8am"] = csvCounty["Left Between 8am"];
-                obj["Left Between 9am and 12pm"] = csvCounty["Left Between 9am and 12pm"];
-
-            }else{
-                tttwArray.forEach(function(d){
-                    obj[d] = csvCounty[d];
-                })
-
-            }
-
-
-            obj2["ID"] = csvCounty.Id3;//could format this to make highlight/dehighlighting easier
-            obj2["freq"] = obj; 
-            obj2["county"] = csvCounty.Geography;
-            dataArray.push(obj2);
-        }
-
-        return dataArray;
-
-    }
-
+   
     function joinData(minnwisc, csvData){
         var motDataArray = [];
         var wisorDataArray = [];
@@ -313,24 +234,11 @@
         };
     };
 
-    // function choropleth(num, colorScale){
-    //     //make sure attribute value is a number
-    //     var val = parseFloat(props[expressed]);
-    //     //if attribute value exists, assign a color; otherwise assign gray
-    //     if (val && val != NaN){
-    //         return colorScale(val);
-    //     } else {
-    //         return "#CCC";
-    //     };
-    // };
-
     function setEnumerationUnits (minnwisc, map, path, colorScale){
 
         //add Minnesota and Wisconsin counties to map
 
-
         var counties = map.selectAll(".counties")
-            
             .data(minnwisc)
             .enter()
             .append("path")
@@ -343,7 +251,6 @@
                 return choropleth(d.properties, colorScale);
             })
             .on("mouseover", function(d){
-                // pC.update(d.properties);
                 highlight(d.properties);
             })
              .on("mouseout", function(d){
@@ -400,31 +307,37 @@
     }
 
     function makeColorScale2(data, color){
-        // var colorClasses = [
-        //     "#ffffcc",
-        //     "#a1dab4",
-        //     "#41b6c4",
-        //     "#2c7fb8",
-        //     "#253494"  
-        // ];
-        // if (!data[0][0]){
-        //     var data= data.map(function(d){
-        //         console.log(d[selectedData]);
-        //         return [d[selectedData].ID,d[selectedData].total,d[selectedData].county,"Total Workers"]});
-        // }
-
-        // console.log(color);
-        // console.log(data);
 
         var colorClasses = getColorClasses(color);
 
         var colorScale = d3.scale.quantile()
             .range(colorClasses);
 
-
+        console.log(data);
         var domainArray = [];
         for (var i = 0; i < data.length; i++){
 
+            var val = parseFloat(data[i][1]);
+            domainArray.push(val);
+        };
+
+        colorScale.domain(domainArray);
+
+        return colorScale;
+
+    };
+
+    function makeColorScale3(data, color){
+
+        var colorClasses = getColorClasses(color);
+
+        var colorScale = d3.scale.quantile()
+            .range(colorClasses);
+
+        console.log(data);
+        var domainArray = [];
+        for (var i = 0; i < data.length; i++){
+            // console.log(data[i]);
             var val = parseFloat(data[i][1]);
             domainArray.push(val);
         };
@@ -499,10 +412,18 @@
       //
 
         //recreate the color scale
+        // console.log(data);
+        // console.log(selectedData);
+        // console.log(data[selectedData]);
+       // var x = data.forEach(function(d){
+       //      var y = d[selectedData];
+       //     y.forEach(function(e){
+       //      return e.total;
+       //     })
+       //  })
+       // console.log(x);
         
-
-        var sF = data.map(function(d){return [d.ID,d.total,d.county,defaultBar]});
-        var colorScale = makeColorScale2(sf, "x");
+        var colorScale = makeColorScale(data, "x");
         //recolor enumeration units
         var counties = d3.selectAll(".counties")
             .style("fill", function(d){
@@ -578,30 +499,32 @@
 
     function setLabel(props){
         // console.log(props);
-
+        var addCommas = d3.format(",");
         var title;
         var val;
         var id;
-        var name;
+        var county;
 
         if(props[0]){
             // console.log("here");
 
             title = props[3];
-            val= props[1];
+            val= addCommas(props[1]);
             id = props[0];
+            county = props[2];
             // console.log(title +"," + val + "," + id);
         }else{
             title = expressed;
-            val = props[expressed];
+            val = addCommas(props[expressed]);
             id = props.Id3;
-            name = props.name;
+            county = props.NAME + " County";
             // console.log(title +"," + val + "," + id + "," + name);
         }
     //label content
-        var labelAttribute = "<h1>" + val +
-            "</h1><b>" + title + "</b>";
-
+        var labelAttribute = "<h1>" + county +
+            "</h1><br><b>" + title +": "+ val+  "</b>";
+       
+        // labelAttribute = addCommas(labelAttribute);
         //create info label div
         var infolabel = d3.select("body")
             .append("div")
@@ -647,50 +570,15 @@
 
         var barColor = 'steelblue';
 
-        console.log(fData);
-
-
-
         function segColor(c){ 
-
 
             return selectedColorObj[c]; 
         }
-
-        // {"Drove Alone":"#FF0000", "Two Person Carpool":"#000099","Three Person Carpool":"#009900","Four Person Carpool":"#FFFF00","Public Transportation":"#660066","Walked":"#663300","Taxi, Motorcycle, Other":"#ff0066","Worked From Home":"#999966"}
-        
-        // console.log(fData);
-
-        
-
-        //might be able to (and probably should) move this into reformatdata()
-        // function sum (obj){
-        //     var tot = 0;
-        //      for( var element in obj ) {
-
-        //         if( obj.hasOwnProperty( element ) ) {
-        //           tot += parseFloat( obj[element] );
-        //         }
-        //       }
-        //       // console.log("total: "+tot);
-        //       return tot;
-
-        // }
-
-        // fData.forEach(function(d){
-            
-        //     d.total= sum(d.freq);
-            
-        // });
-
-        
-
-
         
         // function to handle histogram.
         function histoGram(fD){
-            var hG={},    hGDim = {t: 10, r: 20, l: 20};
-            hGDim.w = window.innerWidth * 0.95, 
+            var hG={},    hGDim = {t: 10, r: 30, l: 30};
+            hGDim.w = window.innerWidth * 0.90, 
             hGDim.h = window.innerHeight * 0.5,
             hGDim.iw = hGDim.w - hGDim.l - hGDim.r,
             hGDim.ih = hGDim.h - hGDim.t * 2.5,
@@ -702,7 +590,12 @@
             //     totArray.push(d.total);
             // });
 
-            var colorScale = makeColorScale2(fD, "x");
+            var colorScale = makeColorScale3(fD, "x");
+            var counties = d3.selectAll(".counties").transition().duration(500)
+                    .style("fill", function(d){
+                        // console.log(nD[0][3]);
+                        return colorScale(d.properties[fD[0][3]]);
+                    });
                 
             //create svg for histogram.
             var hGsvg = d3.selectAll('body').append("svg")
@@ -735,6 +628,7 @@
                 .data(fD)
                 .enter()
                 .append("g")
+                
                 .attr("class", function(d){
                     return "bars " + d[0];
                 });
@@ -806,13 +700,10 @@
 
                 var max = d3.max(nD, function(d) { return d[1]; });
                 max += max * 0.1;
-                if (max >300000){
-                    y = d3.scale.sqrt().range([hGDim.ih, 0])
+                
+                y = d3.scale.sqrt().range([hGDim.ih, 0])
                     .domain([0, max]);
-                }else{
-                    y = d3.scale.sqrt().range([hGDim.ih, 0])
-                    .domain([0, max]);
-                }
+                
 
                 var yAxis = d3.svg.axis()
                     .scale(y)
@@ -851,7 +742,9 @@
 
             piesvg.append("text")
                .attr("text-anchor", "middle")
-               .text("This is a test");
+               .style("font", "sans-serif")
+               .text("Click on a Slice!");
+
             
             // create function to draw the arcs of the pie slices.
             var arc = d3.svg.arc()
@@ -921,19 +814,10 @@
                   
             // Utility function to be called on mouseover a pie slice.
             function mouseover(d){
-                // console.log(d);
-                // call the update function of histogram with new data.
-                // var thisClicked = d3.select(this).attr("clicked");
-                // if(!otherClicked){
-                //     var select = d.data.type;
-                //     select = select.split(' ').join(".");
-                //     piesvg.selectAll("." + select)
-                        
-                //         .style("opacity", "0.6");
-
                    var select = d.data.type;
                      select = select.split(' ').join('');
                      select = select.split(',').join('');
+                     // console.log(select);
                 // }
                 if(!somethingIsClicked){
 
@@ -942,7 +826,7 @@
                         
                         .style("opacity", "0.6");
                     hG.update(fData.map(function(v){ 
-                    // var val = 
+                    // console.log(parseFloat(v.freq[d.data.type]));
                     return [v.ID,parseFloat(v.freq[d.data.type]),v.county,d.data.type];}),segColor(d.data.type)); //update segColor to something else
                 }else{
                     var tc = d3.select(this).attr("clicked");
@@ -1055,8 +939,8 @@
         
         // calculate total frequency by segment for all state.
         var tF =  selectedArray.map(function(d){ 
-            console.log(selectedArray);
-            console.log(d);
+            // console.log(selectedArray);
+            // console.log(d);
             return {type:d, freq: d3.sum(fData.map(function(t){ return t.freq[d];}))}; 
         });    
         
@@ -1067,6 +951,11 @@
         var pC = pieChart(tF), // create the pie-chart.
             leg= legend(tF),// create the legend.
             hG = histoGram(sF);   // create the histogram.
+
+        d3.select("body")
+            .append("text")
+            .attr("class", "etc")
+            .text("Dan Schumacher");
     }
 
 

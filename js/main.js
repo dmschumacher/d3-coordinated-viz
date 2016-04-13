@@ -1,52 +1,31 @@
 (function(){
 
-//Assign more arrays for each pie chart category
-//revamp yScale() to change for each category
-//add hover options
-//add click options
-    // var clicked = false;
-    var otherClicked = false;
+    //variety of global variables
 
+    //arrays of each of the attributes specific to each of the dropdown menu topics
     var motArray = ["Drove Alone", "Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home"]
     var wisorArray = ["Work In State of Residence", "Work Outside State of Residence"];
     var tlfwArray = ["Left Between 12am and 4am","Left Between 5am and 6am","Left Between 6am and 7am","Left Between 7am and 8am","Left Between 8am and 9am","Left Between 9am and 12pm"];
     var tttwArray = ["Less Than 10 Minutes","Between 10 and 19 Minutes","Between 20 and 29 Minutes","Between 30 and 44 Minutes","Between 45 and 59 Minutes","More than 60 Minutes"];
     var attrArray = ["Id","Id2","Id3","Geography","Total Workers","Drove Alone","Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home","Work In State of Residence","InCounty","OutCounty","Work Outside State of Residence","Total Commuters","Left Between 12am and 4am","Left Between 5am and 6am","Left Between 6am and 7am","Left Between 7am and 8am","Left Between 8am and 9am","Left Between 9am and 12pm","Less Than 10 Minutes","Between 10 and 19 Minutes","Between 20 and 29 Minutes","Between 30 and 44 Minutes","Between 45 and 59 Minutes","More than 60 Minutes"];
 
-
+    //objects for  assigning colors to each attribute in the pie chart
     motColorObj = {"Drove Alone":"#de2d26", "Carpooled":"#3182bd","Public Transportation, Taxi, or Motorcycle":"#756bb1","Walked or Biked":"#31a354","Worked From Home":"#e6550d"};
     wisorColorObj = {"Work In State of Residence":"#3182bd","Work Outside State of Residence":"#756bb1"};
     tlfwColorObj = {"Left Between 12am and 4am":"#de2d26", "Left Between 5am and 6am":"#3182bd","Left Between 6am and 7am":"#756bb1","Left Between 7am and 8am":"#31a354","Left Between 8am and 9am":"#e6550d", "Left Between 9am and 12pm":"#636363"};
     tttwColorObj = {"Less Than 10 Minutes":"#de2d26", "Between 10 and 19 Minutes":"#3182bd","Between 20 and 29 Minutes":"#756bb1","Between 30 and 44 Minutes":"#31a354","Between 45 and 59 Minutes":"#e6550d", "More than 60 Minutes":"#636363"};
 
-
-
+    //default values for the graphs on load
     var selectedArray = motArray;
     var selectedColorObj = motColorObj;
     var selectedData = "motData";
     var defaultBar = "Total Workers";
 
-
+    //array of values for the dropdown menu
     var dropdownArray = ["Means of Transportation to Work", "Worked in State of Residence", "Time Left for Work", "Travel Time to Work"];
 
-    var defaultColorRange = ["#de2d26","#3182bd","#e6550d","#31a354","#756bb1","#636363"];
-
+    //default
     var expressed = "Total Workers";
-
-    // var pC;
-
-    var chartWidth = window.innerWidth ,
-        chartHeight = window.innerHeight * 0.5,
-        leftPadding = 100,
-        rightPadding = 5,
-        topBottomPadding = 10,
-        chartInnerWidth = chartWidth - leftPadding - rightPadding,
-        chartInnerHeight = chartHeight - topBottomPadding * 2,
-        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
-
-    var yScale = d3.scale.sqrt()
-            .range([chartInnerHeight, 0])
-            .domain([0, 650000]);
 
     window.onload = setMap();
 
@@ -97,15 +76,10 @@
                 .attr("d", path);
 
             minnwisc = joinData(minnwisc, csvData);
-            console.log(minnwisc);
 
             var colorScale = makeColorScale(csvData);
 
             setEnumerationUnits(minnwisc, map, path, colorScale);
-
-            // var header = document.getElementById("content");
-
-            // header.innerHTML = "MN-WI CommuterViz"
 
             d3.select("body")
                 .append("text")
@@ -114,7 +88,6 @@
 
          
             createDropdown(minnwisc);
-            //http://bl.ocks.org/NPashaP/96447623ef4d342ee09b)
 
         };
 
@@ -122,6 +95,7 @@
 
    
     function joinData(minnwisc, csvData){
+        //create separate arrays for the data for each of the dropdown menu items
         var motDataArray = [];
         var wisorDataArray = [];
         var tlfwDataArray = [];
@@ -131,7 +105,6 @@
 
             var csvCounty = csvData[i];
             var csvKey = csvCounty.Id2;
-
 
             var motFreq = new Object();
             var motData = new Object();
@@ -147,7 +120,10 @@
             var tlfwTot = 0;
             var tttwTot = 0;
 
+            //for each of the dropdown types get a variety 
+            //of info and put it into a new object
 
+            //Means of Transportation
             motArray.forEach(function(d){
                 motTot += parseFloat(csvCounty[d]);
                 motFreq[d] = parseFloat(csvCounty[d]);
@@ -157,7 +133,7 @@
             motData["county"] = csvCounty.Geography;
             motData["freq"] = motFreq;
 
-
+            //Worked In State or Residence
             wisorArray.forEach(function(d){
                 wisorTot += parseFloat(csvCounty[d]);
                 wisorFreq[d] =  parseFloat(csvCounty[d]);
@@ -167,6 +143,7 @@
             wisorData["county"] = csvCounty.Geography;
             wisorData["freq"] = wisorFreq;
 
+            //Time Left for work
             tlfwArray.forEach(function(d){
                 tlfwTot += parseFloat(csvCounty[d]);
                 tlfwFreq[d] =  parseFloat(csvCounty[d]);
@@ -176,6 +153,7 @@
             tlfwData["county"] = csvCounty.Geography;
             tlfwData["freq"] = tlfwFreq;
 
+            //Travel Time to Work
             tttwArray.forEach(function(d){
                 tttwTot += parseFloat(csvCounty[d]);
                 tttwFreq[d] =  parseFloat(csvCounty[d]);
@@ -196,7 +174,6 @@
                 var props = minnwisc[j].properties;
                 var mw = minnwisc[j];
 
-                // props
                 var key = props.GEOID;
  
                 if (key == csvKey){
@@ -204,11 +181,6 @@
                     mw['wisorData'] = wisorDataArray;
                     mw['tlfwData'] = tlfwDataArray;
                     mw['tttwData'] = tttwDataArray;
-
-                    props["motFreq"] = motFreq;
-                    props["wisorFreq"] = wisorFreq;
-                    props["tlfwFreq"] = tlfwFreq;
-                    props["tttwFreq"] = tttwFreq;
                     
                     attrArray.forEach(function(attr){
                         var val = parseFloat(csvCounty[attr]);
@@ -234,14 +206,15 @@
         };
     };
 
+    //add Minnesota and Wisconsin counties to map
     function setEnumerationUnits (minnwisc, map, path, colorScale){
-
-        //add Minnesota and Wisconsin counties to map
 
         var counties = map.selectAll(".counties")
             .data(minnwisc)
             .enter()
             .append("path")
+            //d3 had a problem with using a number to access certain things, 
+            //so I added "id" to the county code in a lot of places
             .attr("class", function(d){
                 var Id3 = "id" + d.properties.GEOID;
                 return "counties " + Id3;
@@ -262,9 +235,10 @@
             .text('{"stroke": "#000", "stroke-width": "0.5px"}');
     };
 
+    //for intial map from csv
     function makeColorScale(data){
 
-
+        // default colorScale
         var colorClasses = colorbrewer.PuBuGn[5];
 
         var colorScale = d3.scale.quantile()
@@ -283,11 +257,10 @@
 
     };
 
+    //get the color scheme depending on the pie slice color
     function getColorClasses(color){
-        // console.log(color);
-
-        // ["#de2d26","#3182bd","#e6550d","#31a354","#756bb1","#636363"]
         var colorClasses;
+
         if (color == "#de2d26"){
             colorClasses = colorbrewer.Reds[5];
         }else if(color == "#3182bd"){
@@ -306,6 +279,8 @@
         return colorClasses;
     }
 
+    //Make a new color scale for when the pie chart is
+    ///hovered and or clicked
     function makeColorScale2(data, color){
 
         var colorClasses = getColorClasses(color);
@@ -313,7 +288,6 @@
         var colorScale = d3.scale.quantile()
             .range(colorClasses);
 
-        console.log(data);
         var domainArray = [];
         for (var i = 0; i < data.length; i++){
 
@@ -327,6 +301,7 @@
 
     };
 
+    //Make new color scale when the dropdown menu changes
     function makeColorScale3(data, color){
 
         var colorClasses = getColorClasses(color);
@@ -334,10 +309,8 @@
         var colorScale = d3.scale.quantile()
             .range(colorClasses);
 
-        console.log(data);
         var domainArray = [];
         for (var i = 0; i < data.length; i++){
-            // console.log(data[i]);
             var val = parseFloat(data[i][1]);
             domainArray.push(val);
         };
@@ -372,20 +345,19 @@
             .attr("value", function(d){ return d })
             .text(function(d){ return d });
 
-        var newData;
-        d3.selectAll(".counties")
-            .attr("test", function(d){
-                newData = d[selectedData];
-            });
+        //retrieves selected data for each county
+        var getData;
+        data.forEach(function(d){
+            getData = d[selectedData];
+        })
 
-        graphs(newData);
+        //graph the selected data
+        graphs(getData);
     };
 
-
-    //When the menu option is changed, graphs should completely reset, data should be recalculated, the selected array should be changed
+    //when dropdown menu changes, reset everything
     function changeAttribute(data, expressed){
         //change the expressed attribute
-        console.log(data);
         var newData;
         
         if (expressed == "Worked in State of Residence"){
@@ -409,36 +381,21 @@
              selectedData = "tttwData";
              defaultBar = "Total Commuters";
         }
-      //
-
-        //recreate the color scale
-        // console.log(data);
-        // console.log(selectedData);
-        // console.log(data[selectedData]);
-       // var x = data.forEach(function(d){
-       //      var y = d[selectedData];
-       //     y.forEach(function(e){
-       //      return e.total;
-       //     })
-       //  })
-       // console.log(x);
         
-        var colorScale = makeColorScale(data, "x");
-        //recolor enumeration units
-        var counties = d3.selectAll(".counties")
-            .style("fill", function(d){
-                // console.log(d[selectedData]);
-                newData = d[selectedData];
-                // console.log(newData);
-                return colorScale[newData.total];
-            });
+        //retrieves selected data for each county
+        var getData;
+        data.forEach(function(d){
+            getData = d[selectedData];
+        })
 
-     
+        //remove old charts
         d3.select(".barChart").remove();
         d3.select(".pie").remove();
         d3.select(".legend").remove();
-        graphs(newData);
+        d3.select(".etc").remove();
 
+        //graph selected data
+        graphs(getData);
 
         
     };
@@ -446,7 +403,9 @@
 
     //function to highlight enumeration units and bars
     function highlight(props){
-        // console.log("Highlight");
+
+        //Ids were stored in different forms on the map
+        // and the barchart
         var selectThis;
         if(props.Id2){
             selectThis = ".id" + props.Id2;
@@ -454,7 +413,6 @@
             selectThis = "." + props[0];
         }
         //change stroke
-        // var selected = d3.selectAll(".id" +props.Id2)
         var selected = d3.selectAll(selectThis)
             .style({
                 "stroke": "black",
@@ -462,11 +420,12 @@
             });
 
         setLabel(props);
-        // updatePieChart(props.motData);
     };
 
     function dehighlight(props){
 
+        //Ids were stored in different forms on the map
+        // and the barchart
         var selectThis;
         if(props.Id2){
             selectThis = ".id" + props.Id2;
@@ -498,7 +457,9 @@
     };
 
     function setLabel(props){
-        // console.log(props);
+        
+        //Ids were stored in different forms on the map
+        // and the barchart
         var addCommas = d3.format(",");
         var title;
         var val;
@@ -506,25 +467,22 @@
         var county;
 
         if(props[0]){
-            // console.log("here");
 
             title = props[3];
             val= addCommas(props[1]);
             id = props[0];
             county = props[2];
-            // console.log(title +"," + val + "," + id);
+
         }else{
             title = expressed;
             val = addCommas(props[expressed]);
             id = props.Id3;
             county = props.NAME + " County";
-            // console.log(title +"," + val + "," + id + "," + name);
         }
     //label content
         var labelAttribute = "<h1>" + county +
             "</h1><br><b>" + title +": "+ val+  "</b>";
-       
-        // labelAttribute = addCommas(labelAttribute);
+
         //create info label div
         var infolabel = d3.select("body")
             .append("div")
@@ -534,9 +492,6 @@
             })
             .html(labelAttribute);
 
-        // var countyName = infolabel.append("div")
-        //     .attr("class", "labelname")
-        //     .html(id);
     };
 
     //function to move info label with mouse
@@ -565,13 +520,13 @@
             });
     };
 
-
+    //master grpahs function that made it easier to coordinate visualization
+    //Huge props to (http://bl.ocks.org/NPashaP/96447623ef4d342ee09b) for
+    //inspiration and a lot of the code
     function graphs(fData){
 
-        var barColor = 'steelblue';
-
+        //get the color corresponding to each attribute
         function segColor(c){ 
-
             return selectedColorObj[c]; 
         }
         
@@ -584,16 +539,10 @@
             hGDim.ih = hGDim.h - hGDim.t * 2.5,
             translate = "translate(" + hGDim.l + "," + hGDim.t +")";
 
-            console.log(fD);
-            var totArray = []
-            // fData.forEach(function(d){
-            //     totArray.push(d.total);
-            // });
-
+            //recolor maps
             var colorScale = makeColorScale3(fD, "x");
             var counties = d3.selectAll(".counties").transition().duration(500)
                     .style("fill", function(d){
-                        // console.log(nD[0][3]);
                         return colorScale(d.properties[fD[0][3]]);
                     });
                 
@@ -616,6 +565,8 @@
                 .attr("height", hGDim.ih)
                 .attr("transform", translate);
 
+            //get the max of the data for the domain of the y axis.
+            //had to add 10% so make sure d3 didn't round off too low
              var max = d3.max(fD, function(d) { return d[1]; });
                 max += max * 0.1;
          
@@ -628,14 +579,12 @@
                 .data(fD)
                 .enter()
                 .append("g")
-                
                 .attr("class", function(d){
                     return "bars " + d[0];
                 });
             
             //create the rectangles.
             bars.append("rect")
-                // .attr("x", function(d) { return x(d[0]); })
                 .attr("x", function(d,i){
                     return i * (hGDim.iw / fD.length) + hGDim.l;
                 })
@@ -644,13 +593,12 @@
                     return y(d[1]) + hGDim.t; })
                 .attr("width", hGDim.iw / fD.length - 1)
                 .attr("height", function(d) { return hGDim.ih - y(d[1]); })
-                // .attr('fill',barColor)
                  .style("fill", function(d){
                     return colorScale(d[1]);
                  })
-                .on("mouseover",mouseover)// mouseover is defined below.
+                .on("mouseover",mouseover)
                 .on("mouseout",mouseout)
-                .on("mousemove", moveLabel);// mouseout is defined below.
+                .on("mousemove", moveLabel);
 
             var desc = bars.append("desc")
                 .text('{"stroke": "none", "stroke-width": "0px"}');
@@ -666,8 +614,10 @@
                 
             
             function mouseover(d){  // utility function to be called on mouseover.
-                // console.log(d);
+                
+                //highlight the bar and county on hover
                 highlight(d);
+
                 // filter for selected state.
                 var st = fData.filter(function(s){ return s.ID == d[0];})[0],
                     nD = d3.keys(st.freq).map(function(s){ return {type:s, freq:st.freq[s]};});
@@ -678,33 +628,34 @@
             }
             
             function mouseout(d){    // utility function to be called on mouseout.
-                // reset the pie-chart and legend.    
+                  
+                //dehighlight bar and county
                 dehighlight(d);
 
+                // reset the pie-chart and legend.  
                 pC.update(tF);
                 leg.update(tF);
             }
             
             // create function to update the bars. This will be used by pie-chart.
             hG.update = function(nD, color){
-                // console.log(nD[0][3]);
-                // console.log(color);
-
-
+                //make new color scale for bars when update is called
                  var colorScale = makeColorScale2(nD, color);
                  var counties = d3.selectAll(".counties").transition().duration(500)
                     .style("fill", function(d){
-                        // console.log(nD[0][3]);
                         return colorScale(d.properties[nD[0][3]]);
                     });
 
+                //get the max of the data for the domain of the y axis.
+                //had to add 10% so make sure d3 didn't round off too low
                 var max = d3.max(nD, function(d) { return d[1]; });
                 max += max * 0.1;
                 
+                //redefine y based on new max value
                 y = d3.scale.sqrt().range([hGDim.ih, 0])
                     .domain([0, max]);
-                
 
+                //create new y axis
                 var yAxis = d3.svg.axis()
                     .scale(y)
                     .orient("left");
@@ -721,7 +672,6 @@
                     .attr("y", function(d) {return y(d[1]) + hGDim.t; })
                     .attr("height", function(d) { return hGDim.ih - y(d[1]); })
                     .style("fill", function(d,i){
-                        // console.log(d);
                         return colorScale(d[1]);
                      });
           
@@ -740,6 +690,7 @@
                 .attr("width", pieDim.w).attr("height", pieDim.h).append("g")
                 .attr("transform", "translate("+pieDim.w/2+","+pieDim.h/2+")");
 
+            //add instructions to the middle of the donut
             piesvg.append("text")
                .attr("text-anchor", "middle")
                .style("font", "sans-serif")
@@ -776,7 +727,9 @@
                     .attrTween("d", arcTween);
             } 
 
+            //if something on the pie chart has a click holding
             var somethingIsClicked = false;
+
             function click(d){
                 
                 var thisClicked = d3.select(this).attr("clicked");
@@ -784,6 +737,8 @@
                  select = select.split(' ').join('');
                  select = select.split(',').join('');
 
+                //if this slice isn't clicked set other slices to a lower opacity, and set this one to max opacity,
+                //then update the barchart
                 if (thisClicked == "false"){
                     piesvg.selectAll("path")
                         .attr("clicked", false)
@@ -798,6 +753,9 @@
                     return [v.ID,parseFloat(v.freq[d.data.type]),v.county,d.data.type];}),segColor(d.data.type));
 
                     somethingIsClicked = true;
+
+                //if this slice is already clicked reset all slices to standard opacity,
+                //then update the barchart
                  }else{
                      piesvg.selectAll("path")
                         .attr("clicked", false)
@@ -806,37 +764,42 @@
                     somethingIsClicked = false;
 
                      hG.update(fData.map(function(v){
-                        return [v.ID,v.total,v.county,defaultBar];}), barColor); //update barColor to chloropleth
+                        return [v.ID,v.total,v.county,defaultBar];}), "default"); //update barColor to chloropleth
 
                  }
             }
-
-                  
+    
             // Utility function to be called on mouseover a pie slice.
             function mouseover(d){
                    var select = d.data.type;
                      select = select.split(' ').join('');
                      select = select.split(',').join('');
-                     // console.log(select);
-                // }
+
+                //if nother on the chart has been clicked yet, set lower opacity on hover,
+                //then update
                 if(!somethingIsClicked){
 
-                    
                     piesvg.selectAll("." + select)
-                        
                         .style("opacity", "0.6");
+
                     hG.update(fData.map(function(v){ 
-                    // console.log(parseFloat(v.freq[d.data.type]));
                     return [v.ID,parseFloat(v.freq[d.data.type]),v.county,d.data.type];}),segColor(d.data.type)); //update segColor to something else
+                
+                //if it has been clicked already
                 }else{
+
                     var tc = d3.select(this).attr("clicked");
-                    // console.log(tc);
+                    
+                    //and this has been clicked keep everything the same
                     if(tc == "true"){
+
                         piesvg.selectAll("path")
                             .style("opacity", "0.2");
 
                         piesvg.selectAll("." + select)
                             .style("opacity", "1");;
+                    
+                    //if this is not the clicked slice change the opacity
                     }else{
                          
                         piesvg.selectAll("." + select)
@@ -849,24 +812,21 @@
             }
             //Utility function to be called on mouseout a pie slice.
             function mouseout(d){
-                // call the update function of histogram with all data.
-                // var thisClicked = d3.select(this).attr("clicked");
-                // if(!otherClicked){
-
-                //      var select = d.data.type;
-                //         select = select.split(' ').join(".");
-                //         piesvg.selectAll("." + select)
-                            
-                //             .style("opacity", "0.8");
+               
                 var select = d.data.type;
-                     select = select.split(' ').join('');
-                     select = select.split(',').join('');
+                 select = select.split(' ').join('');
+                 select = select.split(',').join('');
+
+                 //if nothin is clicked when leaving slice, restyle all to normal opacity,
+                 //and update bar char to standard chart
                 if(!somethingIsClicked){
                     piesvg.selectAll("." + select)
-                        
                         .style("opacity", "0.9");
+
                      hG.update(fData.map(function(v){
-                    return [v.ID,v.total,v.county,defaultBar];}), barColor); //update barColor to chloropleth
+                    return [v.ID,v.total,v.county,defaultBar];}), "default"); 
+
+                //if something is clicked and it isn't this one restore it to light opacity
                 }else{
                      var tc = d3.select(this).attr("clicked");
                      if(tc == "false"){
@@ -876,11 +836,6 @@
                 }
                
             }
-             d3.selection.prototype.moveToFront = function() {  
-              return this.each(function(){
-                this.parentNode.appendChild(this);
-              });
-            };
             
             // Animating the pie-slice requiring a custom function which specifies
             // how the intermediate paths should be drawn.
@@ -939,25 +894,21 @@
         
         // calculate total frequency by segment for all state.
         var tF =  selectedArray.map(function(d){ 
-            // console.log(selectedArray);
-            // console.log(d);
             return {type:d, freq: d3.sum(fData.map(function(t){ return t.freq[d];}))}; 
         });    
         
-        // console.log(fData);
-        // calculate total frequency by state for all segment.
         var sF = fData.map(function(d){return [d.ID,d.total,d.county,defaultBar]});
 
         var pC = pieChart(tF), // create the pie-chart.
             leg= legend(tF),// create the legend.
             hG = histoGram(sF);   // create the histogram.
 
+        //adding name +sources
         d3.select("body")
-            .append("text")
+            .append("div")
             .attr("class", "etc")
-            .text("Dan Schumacher");
+            .html("Dan Schumacher. 575 Lab2. Sources and Inspirations: naturalearthdata.com, census.gov, d3js.org, bl.ocks.org (especially http://bl.ocks.org/NPashaP -> Dashboard)");
     }
-
 
 
 })();

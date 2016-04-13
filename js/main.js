@@ -13,9 +13,12 @@
     var tttwArray = ["Less Than 10 Minutes","10-19 Minutes","20-29 Minutes","30-44 Minutes","45-59 Minutes","60 Minutes or more"];
     var attrArray = ["Id","Id2","Id3","Geography","Total Workers","Drove Alone","Carpooled","Public Transportation, Taxi, or Motorcycle","Walked or Biked","Worked From Home","Work In State of Residence","InCounty","OutCounty","Work Outside State of Residence","Total Commuters","Left Between 12am and 4am","Left Between 5am","Left Between 6am","Left Between 7am","Left Between 8am","Left Between 9am and 12pm","Less Than 10 Minutes","10-19 Minutes","20-29 Minutes","30-44 Minutes","45-59 Minutes","60 Minutes or more","MeanTravel"];
 
+    var selectedArray;
+    var defaultBar;
+
     var dropdownArray = ["Means of Transportation to Work", "Worked in State of Residence", "Time Left for Work", "Travel Time to Work"];
 
-    var defaultColorRange = ["#0000cc", "#990099", "#ff0000", "#ff6600", "#ffff00" , "#006600", "#663300", "#ff0066"];
+    var defaultColorRange = ["#de2d26","#3182bd","#e6550d","#31a354","#756bb1","#636363"];
 
     var MotPieChartData = [4389043,381338,60482,40273,146790,170742,42937,49673,256841];
     var expressed = "Total Workers";
@@ -107,12 +110,36 @@
     };
 
     function reformatData(csvData){
+        var dataMaster =  new Object();
         var dataArray=[];
         
         for (var i = 0; i < csvData.length; i++){
             var obj = new Object();
             var obj2 = new Object();
             var csvCounty = csvData[i];
+
+            var motFreq = new Object();
+            var wisorFreq = new Object();
+            var tlfwFreq = new Object();
+            var tttwFreq = new Object();
+
+
+            motArray.forEach(function(d){
+                motFreq[d] = parseFloat(csvCounty[d]);
+            });
+
+            wisorArray.forEach(function(d){
+                wisorFreq[d] =  parseFloat(csvCounty[d]);
+            });
+
+            tlfwArray.forEach(function(d){
+                tlfwFreq[d] =  parseFloat(csvCounty[d]);
+            });
+
+            tttwArray.forEach(function(d){
+                tttwFreq[d] =  parseFloat(csvCounty[d]);
+            });
+
             // obj.id = csvCounty.Id3;
             // console.log("expressed: " + expressed);
             // if(expressed == "Means of Transportation to Work"){
@@ -146,6 +173,7 @@
                 })
 
             }
+
 
             obj2["ID"] = csvCounty.Id3;//could format this to make highlight/dehighlighting easier
             obj2["freq"] = obj; 
@@ -255,7 +283,7 @@
                 return choropleth(d.properties, colorScale);
             })
             .on("mouseover", function(d){
-                pC.update(d.properties);
+                // pC.update(d.properties);
                 highlight(d.properties);
             })
              .on("mouseout", function(d){
@@ -270,7 +298,7 @@
     function makeColorScale(data){
 
 
-        var colorClasses = colorbrewer.YlGnBu[5];
+        var colorClasses = colorbrewer.PuBuGn[5];
 
         var colorScale = d3.scale.quantile()
             .range(colorClasses);
@@ -290,6 +318,8 @@
 
     function getColorClasses(color){
         // console.log(color);
+
+        // ["#de2d26","#3182bd","#e6550d","#31a354","#756bb1","#636363"]
         var colorClasses;
         if (color == "#de2d26"){
             colorClasses = colorbrewer.Reds[5];
@@ -301,6 +331,8 @@
             colorClasses = colorbrewer.Greens[5];
         }else if(color == "#756bb1"){
             colorClasses = colorbrewer.Purples[5];
+        }else if(color == "#636363"){       
+            colorClasses = colorbrewer.Greys[5];    
         }else{
             colorClasses = colorbrewer.PuBuGn[5];
         }
@@ -345,13 +377,8 @@
             .append("select")
             .attr("class", "dropdown")
             .on("change", function(){
-            if (this.value == "Means of Transportation to Work" || this.value == "Worked in State of Residence"){
-                expressed = "TotWorkers";
-            }else{
-                expressed  = "TotCommuters";
-            }
-            changeAttribute(data);
-        });
+                changeAttribute(data, this.value);
+            });
 
         //add initial option
         var titleOption = dropdown.append("option")
@@ -370,10 +397,12 @@
 
 
     //When the menu option is changed, graphs should completely reset, data should be recalculated, the selected array should be changed
-    function changeAttribute(data){
+    function changeAttribute(data, expressed){
         //change the expressed attribute
-      
-
+        var newData;
+        if (expressed == "Worked in State of Residence"){
+            selectedArray = "wisorFreq";
+        }
       //
 
         //recreate the color scale
@@ -382,8 +411,9 @@
         //recolor enumeration units
         var counties = d3.selectAll(".counties")
             .style("fill", function(d){
-
-                return choropleth(d.properties, colorScale)
+                newData = d.properties[selectedArray];
+                console.log(newData);
+                return colorScale;
             });
 
      
@@ -518,6 +548,7 @@
     function graphs(fData){
         var barColor = 'steelblue';
 
+        console.log(fData);
 
 
         function resetColorsAndArrayThing(){//need to have a color object for each category and an array of the values to pass in to the pie chart data?
@@ -659,6 +690,7 @@
                 // console.log(nD[0][3]);
                 // console.log(color);
 
+
                  var colorScale = makeColorScale2(nD, color);
                  var counties = d3.selectAll(".counties").transition().duration(500)
                     .style("fill", function(d){
@@ -710,6 +742,10 @@
                 .attr("class", "pie")
                 .attr("width", pieDim.w).attr("height", pieDim.h).append("g")
                 .attr("transform", "translate("+pieDim.w/2+","+pieDim.h/2+")");
+
+            piesvg.append("text")
+               .attr("text-anchor", "middle")
+               .text("This is a test");
             
             // create function to draw the arcs of the pie slices.
             var arc = d3.svg.arc()
@@ -726,69 +762,119 @@
                 .style("fill", function(d) { return segColor(d.data.type); })//update segColor to something else
                 .attr("class", function(d) { return d.data.type; })
                 .attr("clicked", false)
-                .on("mouseover",mouseover).on("mouseout",mouseout).on("click",click);
+                .on("mouseover",mouseover)
+                .on("mouseout",mouseout)
+                .on("click",click);
 
             // create function to update pie-chart. This will be used by histogram.
             pC.update = function(nD){
                 piesvg.selectAll("path").data(pie(nD)).transition().duration(500)
                     .attrTween("d", arcTween);
             } 
+
+            var somethingIsClicked = false;
             function click(d){
                 
+                var thisClicked = d3.select(this).attr("clicked");
                 var select = d.data.type;
                 select = select.split(' ').join(".");
-                var isClicked = d3.select(this).attr("clicked");
-                console.log("other" + otherClicked);
-                
-                if(otherClicked && isClicked == "true"){
-                    console.log("here");
+
+                if (thisClicked == "false"){
+                    piesvg.selectAll("path")
+                        .attr("clicked", false)
+                        .style("opacity", "0.2");
+
                     piesvg.selectAll("." + select)
-                        
-                        .style("opacity", "0.8")
-                        .attr("clicked", false);
-                    otherClicked = false;
-                    // d3.select(this).attr("clicked") = false;
-                }else if(!otherClicked && isClicked == "false"){//None of the others have been clicked and this one hasn't either, slected it., 
-                    console.log("here2");
-                    piesvg.selectAll("." + select)
-                       
-                        .style("opacity", "1")
-                        .attr("clicked", true);
-                    otherClicked = true;
-                    // d3.select(this).attr("clicked") = true;
-                    
-                }
-            }       
+                        .attr("clicked", true)
+                        .style("opacity", "1");;
+
+                    hG.update(fData.map(function(v){ 
+                    // var val = 
+                    return [v.ID,parseFloat(v.freq[d.data.type]),v.county,d.data.type];}),segColor(d.data.type));
+
+                    somethingIsClicked = true;
+                 }else{
+                     piesvg.selectAll("path")
+                        .attr("clicked", false)
+                        .style("opacity", "0.9");
+
+                    somethingIsClicked = false;
+
+                     hG.update(fData.map(function(v){
+                        return [v.ID,v.total,v.county,"Total Workers"];}), barColor); //update barColor to chloropleth
+
+                 }
+            }
+
+                  
             // Utility function to be called on mouseover a pie slice.
             function mouseover(d){
                 console.log(d);
                 // call the update function of histogram with new data.
-                if(!otherClicked){
-                    var select = d.data.type;
+                // var thisClicked = d3.select(this).attr("clicked");
+                // if(!otherClicked){
+                //     var select = d.data.type;
+                //     select = select.split(' ').join(".");
+                //     piesvg.selectAll("." + select)
+                        
+                //         .style("opacity", "0.6");
+
+                   var select = d.data.type;
                     select = select.split(' ').join(".");
+                // }
+                if(!somethingIsClicked){
+
+                    
                     piesvg.selectAll("." + select)
                         
                         .style("opacity", "0.6");
-
                     hG.update(fData.map(function(v){ 
                     // var val = 
                     return [v.ID,parseFloat(v.freq[d.data.type]),v.county,d.data.type];}),segColor(d.data.type)); //update segColor to something else
+                }else{
+                    var tc = d3.select(this).attr("clicked");
+                    console.log(tc);
+                    if(tc == "true"){
+                        piesvg.selectAll("path")
+                            .style("opacity", "0.2");
+
+                        piesvg.selectAll("." + select)
+                            .style("opacity", "1");;
+                    }else{
+                         
+                        piesvg.selectAll("." + select)
+                            .style("opacity", "0.6");
+                    }
+                    
                 }
+                 
                 
             }
             //Utility function to be called on mouseout a pie slice.
             function mouseout(d){
                 // call the update function of histogram with all data.
-                if(!otherClicked){
+                // var thisClicked = d3.select(this).attr("clicked");
+                // if(!otherClicked){
 
-                     var select = d.data.type;
-                        select = select.split(' ').join(".");
-                        piesvg.selectAll("." + select)
+                //      var select = d.data.type;
+                //         select = select.split(' ').join(".");
+                //         piesvg.selectAll("." + select)
                             
-                            .style("opacity", "0.8");
-
+                //             .style("opacity", "0.8");
+                var select = d.data.type;
+                    select = select.split(' ').join(".");
+                if(!somethingIsClicked){
+                    piesvg.selectAll("." + select)
+                        
+                        .style("opacity", "0.9");
                      hG.update(fData.map(function(v){
                     return [v.ID,v.total,v.county,"Total Workers"];}), barColor); //update barColor to chloropleth
+                }else{
+                     var tc = d3.select(this).attr("clicked");
+                     if(tc == "false"){
+                        piesvg.selectAll("." + select)
+                            .style("opacity", "0.2");
+                     }
                 }
                
             }
